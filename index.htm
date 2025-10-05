@@ -268,47 +268,14 @@
         // --- DEFAULT WORD LIST ---
         const defaultWords = ['cat', 'dog', 'sun', 'hat', 'run', 'bed', 'pig', 'top', 'cup', 'pen', 'map', 'log', 'sit', 'fan'];
 
-        const views = {
-            roleSelection: document.getElementById('role-selection-view'),
-            teacher: document.getElementById('teacher-view'),
-            studentName: document.getElementById('student-name-view'),
-            studentSession: document.getElementById('student-session-view'),
-            certificate: document.getElementById('certificate-view'),
-        };
-        const teacherRoleBtn = document.getElementById('teacher-role-btn');
-        const studentRoleBtn = document.getElementById('student-role-btn');
-        const backToRoleTeacherBtn = document.getElementById('back-to-role-teacher');
-        const backToRoleStudentBtn = document.getElementById('back-to-role-student');
-        const addWordBtn = document.getElementById('add-word-btn');
-        const newWordInput = document.getElementById('new-word-input');
-        const addBulkWordsBtn = document.getElementById('add-bulk-words-btn');
-        const bulkWordsInput = document.getElementById('bulk-words-input');
-        const wordListDiv = document.getElementById('word-list');
-        const startSessionBtn = document.getElementById('start-session-btn');
-        const studentNameInput = document.getElementById('student-name-input');
-        
-        const canvasContainer = document.getElementById('writingCanvasContainer');
-        const writingCanvas = document.getElementById('writingCanvas');
-        const templateCanvas = document.getElementById('templateCanvas');
-        const writingCtx = writingCanvas.getContext('2d');
-        const templateCtx = templateCanvas.getContext('2d');
-
-        const checkHandwritingBtn = document.getElementById('check-handwriting-btn');
-        const clearCanvasBtn = document.getElementById('clear-canvas-btn');
-        const feedbackOverlay = document.getElementById('feedback-overlay');
-        const feedbackCard = document.getElementById('feedback-card');
-        const feedbackMessage = document.getElementById('feedback-message');
-        const scoreCard = document.getElementById('score-card');
-        const scoreListDiv = document.getElementById('score-list');
-        const toggleProgressBtn = document.getElementById('toggle-progress-btn');
-
-        const localFileWarning = document.getElementById('local-file-warning');
-
-        const certStudentName = document.getElementById('cert-student-name');
-        const certDate = document.getElementById('cert-date');
-        const playAgainBtn = document.getElementById('play-again-btn');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        const emailBtn = document.getElementById('email-btn');
+        let views, teacherRoleBtn, studentRoleBtn, backToRoleTeacherBtn, backToRoleStudentBtn, 
+            addWordBtn, newWordInput, addBulkWordsBtn, bulkWordsInput, wordListDiv, 
+            startSessionBtn, studentNameInput, canvasContainer, writingCanvas, templateCanvas, 
+            writingCtx, templateCtx, checkHandwritingBtn, clearCanvasBtn, feedbackOverlay, 
+            feedbackCard, feedbackMessage, scoreCard, scoreListDiv, toggleProgressBtn, 
+            localFileWarning, certStudentName, certDate, playAgainBtn, downloadPdfBtn, emailBtn, 
+            defaultOwlContainer, loadingOwlContainer, happyOwlContainer, sadOwlContainer,
+            loadingContainer, progressBar, loadingText;
 
         // --- OWL SVGs ---
         const defaultOwlSVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g><path d="M50,15 C27.9,15 10,32.9 10,55 C10,77.1 27.9,95 50,95 C72.1,95 90,77.1 90,55 C90,32.9 72.1,15 50,15 Z" fill="#c084fc"/><path d="M50,20 C30.7,20 15,35.7 15,55 C15,74.3 30.7,90 50,90 C69.3,90 85,74.3 85,55 C85,35.7 69.3,20 50,20 Z" fill="#e9d5ff"/><path d="M35.1,61.5c-4.8-1.8-8.1-6.4-8.1-11.5c0-6.9,5.6-12.5,12.5-12.5s12.5,5.6,12.5,12.5c0,0.1,0,0.2,0,0.3c-2.3-1.9-5.2-3-8.4-3c-6.2,0-11.5,4.3-12.9,10.1L35.1,61.5z" fill="#f3e8ff"/><path d="M64.9,61.5c4.8-1.8,8.1-6.4,8.1-11.5c0-6.9-5.6-12.5-12.5-12.5S48,43.1,48,50c0,0.1,0,0.2,0,0.3c2.3-1.9,5.2-3,8.4-3c6.2,0,11.5,4.3,12.9,10.1L64.9,61.5z" fill="#f3e8ff"/><circle cx="35" cy="50" r="14" fill="white"/><circle cx="65" cy="50" r="14" fill="white"/><circle cx="38" cy="53" r="6" fill="black"/><circle cx="62" cy="53" r="6" fill="black"/><path d="M47,68 C47,70.8,48.2,73,50,73 C51.8,73,53,70.8,53,68 L47,68 Z" fill="#f97316"/><path d="M18,55 L8,45 C13,35 23,30 33,30 C38,30 43,32 48,35 C53,32 58,30 63,30 C73,30 83,35 88,45 L78,55" fill="#c084fc"/></g></svg>`;
@@ -321,15 +288,6 @@
             Object.values(views).forEach(view => view.classList.add('hidden'));
             if (views[viewId]) views[viewId].classList.remove('hidden');
         };
-
-        teacherRoleBtn.addEventListener('click', () => {
-            renderWordList();
-            showView('teacher');
-        });
-        studentRoleBtn.addEventListener('click', () => showView('studentName'));
-        backToRoleTeacherBtn.addEventListener('click', () => showView('roleSelection'));
-        backToRoleStudentBtn.addEventListener('click', () => showView('roleSelection'));
-        startSessionBtn.addEventListener('click', startSession);
         
         // --- WORD MANAGEMENT (LOCALSTORAGE) ---
         function getWords() {
@@ -358,43 +316,6 @@
                 wordListDiv.appendChild(wordEl);
             });
         }
-        
-        wordListDiv.addEventListener('click', e => {
-            if (e.target.classList.contains('delete-word-btn')) {
-                const wordToDelete = e.target.dataset.word;
-                let words = getWords();
-                words = words.filter(word => word !== wordToDelete);
-                saveWords(words);
-                renderWordList();
-            }
-        });
-
-        addWordBtn.addEventListener('click', () => {
-            const word = newWordInput.value.trim().toLowerCase();
-            if (!word) return;
-            const words = getWords();
-            if (!words.includes(word)) {
-                words.push(word);
-                saveWords(words);
-                renderWordList();
-            }
-            newWordInput.value = '';
-        });
-
-        addBulkWordsBtn.addEventListener('click', () => {
-            const bulkText = bulkWordsInput.value.trim();
-            if (!bulkText) return;
-            const wordsToAdd = bulkText.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
-            let words = getWords();
-            wordsToAdd.forEach(word => {
-                if (!words.includes(word)) {
-                    words.push(word);
-                }
-            });
-            saveWords(words);
-            renderWordList();
-            bulkWordsInput.value = '';
-        });
         
         // --- AUDIO LOGIC (TTS & PRE-CACHING) ---
         const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -476,15 +397,6 @@
         function draw(e){if(!drawing)return;e.preventDefault();const rect=writingCanvas.getBoundingClientRect();let x,y;if(e.touches){x=e.touches[0].clientX-rect.left;y=e.touches[0].clientY-rect.top}else{x=e.clientX-rect.left;y=e.clientY-rect.top}
         writingCtx.lineTo(x,y);writingCtx.stroke();writingCtx.beginPath();writingCtx.moveTo(x,y)}
         function clearWritingCanvas(){ writingCtx.clearRect(0,0,writingCanvas.width,writingCanvas.height); }
-
-        writingCanvas.addEventListener('mousedown',startPosition);
-        writingCanvas.addEventListener('mouseup',endPosition);
-        writingCanvas.addEventListener('mousemove',draw);
-        writingCanvas.addEventListener('touchstart',startPosition);
-        writingCanvas.addEventListener('touchend',endPosition);
-        writingCanvas.addEventListener('touchmove',draw);
-        clearCanvasBtn.addEventListener('click',clearWritingCanvas);
-        window.addEventListener('resize',resizeAllCanvas);
         
         function showFeedbackWithOwl(state, message, duration = 1500) {
             happyOwlContainer.classList.add('hidden');
@@ -542,47 +454,6 @@
             showView('certificate');
         }
         
-        playAgainBtn.addEventListener('click', () => {
-            showView('roleSelection');
-        });
-
-        downloadPdfBtn.addEventListener('click', () => {
-            const certificateElement = document.getElementById('certificate-card');
-            const studentName = certStudentName.textContent.replace(/ /g, '_');;
-            html2canvas(certificateElement, { 
-                scale: 3,
-                useCORS: true,
-                backgroundColor: null,
-                onclone: (document) => {
-                    const style = document.createElement('style');
-                    style.innerHTML = `
-                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Baloo+2:wght@700;800&family=Tangerine:wght@700&display=swap');
-                        .font-script { font-family: 'Tangerine', cursive !important; }
-                        .font-display { font-family: 'Baloo 2', cursive !important; }
-                    `;
-                    document.head.appendChild(style);
-                }
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'px',
-                    format: [canvas.width, canvas.height]
-                });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save(`Certificate_${studentName}.pdf`);
-            });
-        });
-
-        emailBtn.addEventListener('click', () => {
-            const studentName = certStudentName.textContent;
-            const subject = encodeURIComponent(`Certificate of Achievement for ${studentName}`);
-            const body = encodeURIComponent(`Dear Principal,\n\nPlease find attached the certificate of achievement for ${studentName}, who has successfully completed the Easy Reader tracing program.\n\nThank you.`);
-            window.location.href = `mailto:director@footprints.edu.bo?subject=${subject}&body=${body}`;
-        });
-
-
         function setupWritingPhase() {
             clearWritingCanvas();
             checkHandwritingBtn.disabled = false;
@@ -639,43 +510,169 @@
                 scoreListDiv.appendChild(scoreEl);
             });
         }
-
-        checkHandwritingBtn.addEventListener('click', async () => {
-            if (!currentWordObject) return;
-            const isTracedCorrectly = verifyTrace();
-            if (isTracedCorrectly) {
-                currentWordObject.successes++;
-                playAudio(currentWordObject.word);
-                updateScoreList();
-                checkHandwritingBtn.disabled = true;
-                showFeedbackWithOwl('success', 'Great Job!', 1200);
-                setTimeout(setupNextWord, 1300);
-            } else {
-                currentWordObject.failures++;
-                if (currentWordObject.requiredReps === BASE_REPS && currentWordObject.failures > 0) {
-                    currentWordObject.requiredReps = FAILED_REPS;
-                }
-                showFeedbackWithOwl('failure', 'Almost!', 1500);
-                const phrases = ["Try again", "You can do it", "Almost there"];
-                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-                playAudio(randomPhrase);
-                updateScoreList();
-                clearWritingCanvas();
-            }
-        });
         
-        toggleProgressBtn.addEventListener('click', () => {
-            scoreCard.classList.toggle('hidden');
-        });
-
         window.onload = () => {
+            views = {
+                roleSelection: document.getElementById('role-selection-view'),
+                teacher: document.getElementById('teacher-view'),
+                studentName: document.getElementById('student-name-view'),
+                studentSession: document.getElementById('student-session-view'),
+                certificate: document.getElementById('certificate-view'),
+            };
+            teacherRoleBtn = document.getElementById('teacher-role-btn');
+            studentRoleBtn = document.getElementById('student-role-btn');
+            backToRoleTeacherBtn = document.getElementById('back-to-role-teacher');
+            backToRoleStudentBtn = document.getElementById('back-to-role-student');
+            addWordBtn = document.getElementById('add-word-btn');
+            newWordInput = document.getElementById('new-word-input');
+            addBulkWordsBtn = document.getElementById('add-bulk-words-btn');
+            bulkWordsInput = document.getElementById('bulk-words-input');
+            wordListDiv = document.getElementById('word-list');
+            startSessionBtn = document.getElementById('start-session-btn');
+            studentNameInput = document.getElementById('student-name-input');
+            canvasContainer = document.getElementById('writingCanvasContainer');
+            writingCanvas = document.getElementById('writingCanvas');
+            templateCanvas = document.getElementById('templateCanvas');
+            writingCtx = writingCanvas.getContext('2d');
+            templateCtx = templateCanvas.getContext('2d');
+            checkHandwritingBtn = document.getElementById('check-handwriting-btn');
+            clearCanvasBtn = document.getElementById('clear-canvas-btn');
+            feedbackOverlay = document.getElementById('feedback-overlay');
+            feedbackCard = document.getElementById('feedback-card');
+            feedbackMessage = document.getElementById('feedback-message');
+            scoreCard = document.getElementById('score-card');
+            scoreListDiv = document.getElementById('score-list');
+            toggleProgressBtn = document.getElementById('toggle-progress-btn');
+            localFileWarning = document.getElementById('local-file-warning');
+            certStudentName = document.getElementById('cert-student-name');
+            certDate = document.getElementById('cert-date');
+            playAgainBtn = document.getElementById('play-again-btn');
+            downloadPdfBtn = document.getElementById('download-pdf-btn');
+            emailBtn = document.getElementById('email-btn');
+            defaultOwlContainer = document.getElementById('default-owl-container');
+            loadingOwlContainer = document.getElementById('loading-owl-container');
+            happyOwlContainer = document.getElementById('happy-owl-container');
+            sadOwlContainer = document.getElementById('sad-owl-container');
+            
              if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
                 localFileWarning.classList.remove('hidden');
             }
-            document.getElementById('default-owl-container').innerHTML = defaultOwlSVG;
-            document.getElementById('loading-owl-container').innerHTML = loadingOwlSVG;
-            document.getElementById('happy-owl-container').innerHTML = happyOwlSVG;
-            document.getElementById('sad-owl-container').innerHTML = sadOwlSVG;
+            defaultOwlContainer.innerHTML = defaultOwlSVG;
+            loadingOwlContainer.innerHTML = loadingOwlSVG;
+            happyOwlContainer.innerHTML = happyOwlSVG;
+            sadOwlContainer.innerHTML = sadOwlSVG;
+
+            teacherRoleBtn.addEventListener('click', () => {
+                renderWordList();
+                showView('teacher');
+            });
+            studentRoleBtn.addEventListener('click', () => showView('studentName'));
+            backToRoleTeacherBtn.addEventListener('click', () => showView('roleSelection'));
+            backToRoleStudentBtn.addEventListener('click', () => showView('roleSelection'));
+            startSessionBtn.addEventListener('click', startSession);
+            wordListDiv.addEventListener('click', e => {
+                if (e.target.classList.contains('delete-word-btn')) {
+                    const wordToDelete = e.target.dataset.word;
+                    let words = getWords();
+                    words = words.filter(word => word !== wordToDelete);
+                    saveWords(words);
+                    renderWordList();
+                }
+            });
+            addWordBtn.addEventListener('click', () => {
+                const word = newWordInput.value.trim().toLowerCase();
+                if (!word) return;
+                let words = getWords();
+                if (!words.includes(word)) {
+                    words.push(word);
+                    saveWords(words);
+                    renderWordList();
+                }
+                newWordInput.value = '';
+            });
+            addBulkWordsBtn.addEventListener('click', () => {
+                const bulkText = bulkWordsInput.value.trim();
+                if (!bulkText) return;
+                const wordsToAdd = bulkText.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
+                let words = getWords();
+                wordsToAdd.forEach(word => {
+                    if (!words.includes(word)) {
+                        words.push(word);
+                    }
+                });
+                saveWords(words);
+                renderWordList();
+                bulkWordsInput.value = '';
+            });
+            writingCanvas.addEventListener('mousedown',startPosition);
+            writingCanvas.addEventListener('mouseup',endPosition);
+            writingCanvas.addEventListener('mousemove',draw);
+            writingCanvas.addEventListener('touchstart',startPosition);
+            writingCanvas.addEventListener('touchend',endPosition);
+            writingCanvas.addEventListener('touchmove',draw);
+            clearCanvasBtn.addEventListener('click',clearWritingCanvas);
+            window.addEventListener('resize',resizeAllCanvas);
+            playAgainBtn.addEventListener('click', () => showView('roleSelection'));
+            downloadPdfBtn.addEventListener('click', () => {
+                const certificateElement = document.getElementById('certificate-card');
+                const studentName = certStudentName.textContent.replace(/ /g, '_');;
+                html2canvas(certificateElement, { 
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: null,
+                    onclone: (document) => {
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Baloo+2:wght@700;800&family=Tangerine:wght@700&display=swap');
+                            .font-script { font-family: 'Tangerine', cursive !important; }
+                            .font-display { font-family: 'Baloo 2', cursive !important; }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                }).then(canvas => {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'px',
+                        format: [canvas.width, canvas.height]
+                    });
+                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+                    pdf.save(`Certificate_${studentName}.pdf`);
+                });
+            });
+            emailBtn.addEventListener('click', () => {
+                const studentName = certStudentName.textContent;
+                const subject = encodeURIComponent(`Certificate of Achievement for ${studentName}`);
+                const body = encodeURIComponent(`Dear Principal,\n\nPlease find attached the certificate of achievement for ${studentName}, who has successfully completed the Easy Reader tracing program.\n\nThank you.`);
+                window.location.href = `mailto:director@footprints.edu.bo?subject=${subject}&body=${body}`;
+            });
+            checkHandwritingBtn.addEventListener('click', async () => {
+                if (!currentWordObject) return;
+                const isTracedCorrectly = verifyTrace();
+                if (isTracedCorrectly) {
+                    currentWordObject.successes++;
+                    playAudio(currentWordObject.word);
+                    updateScoreList();
+                    checkHandwritingBtn.disabled = true;
+                    showFeedbackWithOwl('success', 'Great Job!', 1200);
+                    setTimeout(setupNextWord, 1300);
+                } else {
+                    currentWordObject.failures++;
+                    if (currentWordObject.requiredReps === BASE_REPS && currentWordObject.failures > 0) {
+                        currentWordObject.requiredReps = FAILED_REPS;
+                    }
+                    showFeedbackWithOwl('failure', 'Almost!', 1500);
+                    const phrases = ["Try again", "You can do it", "Almost there"];
+                    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+                    playAudio(randomPhrase);
+                    updateScoreList();
+                    clearWritingCanvas();
+                }
+            });
+            toggleProgressBtn.addEventListener('click', () => {
+                scoreCard.classList.toggle('hidden');
+            });
+            
             showView('roleSelection');
         };
     </script>
